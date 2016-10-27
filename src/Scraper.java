@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Tom on 25-10-2016.
@@ -25,64 +26,6 @@ class Scraper {
         startingTableBodyIndex = 1;
         buildSelectors();
         buildDocument();
-
-
-//        //      Location of stats:
-////      Name:
-////      <tbody>
-////          <tr>
-////              <td align="left">
-////                  <span style="white-space:nowrap">
-////                      Content of 2nd <a> element
-////      StrStart:
-////      <tbody>
-////          <tr>
-////              Content of 3rd <td> element
-//
-//        //        System.out.println("doc = " + doc);
-//        Element tbody = doc.select("tbody").get(1);
-////        System.out.println("tbody = " + tbody);
-//        System.out.println(" ------------------------------------------------ ");
-//        Element activeRow = tbody.select("tr").get(1);
-//
-////        Element title = activeRow.select("td span a:nth-child(2)").first();
-////        String titleText = title.html();
-////        System.out.println("title = " + title);
-////        System.out.println("titleText = " + titleText);
-//
-//        Element primaryAttribute = activeRow.select("td:nth-child(2) a").first();
-//        String primaryAttributeText = primaryAttribute.attr("title");
-//        System.out.println("primAtt = " + primaryAttribute);
-//        System.out.println("primAttText = " + primaryAttributeText);
-//
-////        Element baseArmor = activeRow.select("td:nth-child(13) span").first();
-//        Element baseArmor = activeRow.select("td:nth-child(13) span").first();
-//        String baseArmorText = baseArmor.attr("title");
-//        String bText = baseArmorText.split(" ")[0];
-//        System.out.println("baseArmor = " + baseArmor);
-//        System.out.println("baseArmorText = " + baseArmorText);
-//        System.out.println("bText = " + bText);
-//        System.out.println("");
-//
-//        Element strStart = activeRow.select("td span a:nth-child(2)").first();
-//        String strText = strStart.text();
-//        System.out.println("strStart = " + strStart);
-//        System.out.println("strText = " + strText);
-//        System.out.println("");
-        System.out.println("scrapeAttribute(\"Lich\",baseArmor) = " + scrapeAttribute("Lich","baseArmor"));
-        System.out.println("scrapeAttribute(\"Lich\",strStart) = " + scrapeAttribute("Lich", "strStart"));
-        System.out.println("scrapeAttribute(\"Axe\",baseArmor) = " + scrapeAttribute("Axe", "baseArmor"));
-        System.out.println("scrapeAttribute(\"Kunkka\",\"agiGain\") = " + scrapeAttribute("Kunkka", "agiGain"));
-        System.out.println("scrapeAttribute(\"mermaid\",\"agiGain\") = " + scrapeAttribute("mermaid", "agiGain"));
-        System.out.println("scrapeAttribute(\"Axe\",\"level\") = " + scrapeAttribute("Axe", "level"));
-        System.out.println("scrapeNames() = " + scrapeNames());
-    }
-
-    Scraper(int startingRowIndex, int startingTableBodyIndex, Document doc) throws IOException {
-        this.startingRowIndex = startingRowIndex;
-        this.startingTableBodyIndex = startingTableBodyIndex;
-        this.doc = doc;
-        buildSelectors();
     }
 
     private void buildSelectors() {
@@ -117,7 +60,6 @@ class Scraper {
         startRow = tbody.select("tr").get(rowIndex);
         if (startRow == null) {
             System.err.println("The starting row of this index is empty");
-            return;
         }
     }
 
@@ -125,6 +67,15 @@ class Scraper {
         Map<String, String> returnMap = new HashMap<>();
         for (String a : attributesToScrape) {
             returnMap.put(a, scrapeAttribute(heroName, a));
+        }
+        return returnMap;
+    }
+
+    public Map<String, String> scrapeAllAttributes(String heroName) {
+        Map<String, String> returnMap = new HashMap<>();
+        Set<String> attributeNames = attributeSelectors.keySet();
+        for (String attribute : attributeNames) {
+            returnMap.put(attribute, scrapeAttribute(heroName, attribute));
         }
         return returnMap;
     }
@@ -144,9 +95,9 @@ class Scraper {
             String currentHeroName = attributeElement.text();
             if (currentHeroName.equals(heroName)) {
                 attributeElement = row.select(attributeSelectors.get(attribute)).first();
-                if (attribute == "primaryAttribute") {
+                if (attribute.equals("primaryAttribute")) {
                     return attributeElement.attr("title");
-                } else if (attribute == "baseArmor") {
+                } else if (attribute.equals("baseArmor")) {
                     String baseArmorText = attributeElement.attr("title");
                     String baseArmorValue = baseArmorText.split(" ")[0];
                     return baseArmorValue;
