@@ -21,8 +21,9 @@ public class StatsDotA {
             System.out.println(hero.getName() + " has effective HP of " + (int) hero.effectiveHealth(25) + " at level 25");
             System.out.println(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
         }
-
+        Hero firstHeroFromTable = new Hero(scrapy.scrapeAllAttributes(scrapy.scrapeNames().get(0)));
     }
+
     public static List<Hero> makeAllHeroes() throws IOException, NoSuchFieldException, IllegalAccessException {
         List<Hero> heroes = new ArrayList<>();
         Scraper scraper = new Scraper();
@@ -32,6 +33,10 @@ public class StatsDotA {
             heroes.add(new Hero(mapOfAttributes));
         }
         return heroes;
+    }
+    public static Hero makeHeroOfIndex(int index) throws  IOException, NoSuchFieldException, IllegalAccessException {
+        Scraper scrapy = new Scraper();
+        return new Hero(scrapy.scrapeAllAttributes(scrapy.scrapeNames().get(index)));
     }
 }
 
